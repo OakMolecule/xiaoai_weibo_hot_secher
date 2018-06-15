@@ -56,6 +56,6 @@ if ($err) {
 //    echo $div_tags;
     preg_match("/(?<=nick-name=\")[\s\S]*?(?=\")/", $div_tags, $nick_name);
     preg_match("/<p.*?>[\s\S]*?<\/p>/", $div_tags, $p_tags);
-    echo json_encode(array("nick_name" => $nick_name[0], "content" => preg_replace("/<.*?>|[\s]/", "", $p_tags[0])));
+    echo json_encode(array("nick_name" => $nick_name[0], "content" => preg_replace("/<.*?>|[\s]|#/", "", $p_tags[0])));
 }
 
