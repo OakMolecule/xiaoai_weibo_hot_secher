@@ -46,7 +46,7 @@ if ($err) {
         if (preg_match("/(?<=>).+(?=<\/a)/", $a_tags[$i], $title)) {
             preg_match("/((?<=href=\").*?(?=\")|(?<=href=').*?(?='))/", $a_tags[$i], $href);
 //            $data = array($data, array($j + 1, $title[0], $href[0]));
-            array_push($data, array("num" => $j + 1, "title" => $title[0], "href" => $href[0]));
+            array_push($data, array("num" => $j + 1, "title" => preg_replace("/<.*?>|[\s]|#/", "", $title[0]), "href" => $href[0]));
             $j++;
         }
     }
