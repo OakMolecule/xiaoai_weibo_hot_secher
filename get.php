@@ -7,7 +7,7 @@ if (isset($_GET['id'])) {
 }
 $url = "";
 foreach ($dbh->query("SELECT * FROM weibo_hot_searchs order by `created_at` desc limit 1") as $row) {
-    $url = "https://s.weibo.com" . json_decode($row['json'], true)[$id - 1]['href'];
+    $url = "http://s.weibo.com" . json_decode($row['json'], true)[$id - 1]['href'];
 //    echo $url;
 //    echo json_decode($row['json'], true)[$id - 1]['href'];
     break;

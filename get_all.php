@@ -9,7 +9,7 @@ $curl = curl_init();
 $data = array();
 
 curl_setopt_array($curl, array(
-    CURLOPT_URL => "https://s.weibo.com/top/summary",
+    CURLOPT_URL => "http://s.weibo.com/top/summary",
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_ENCODING => "",
     CURLOPT_MAXREDIRS => 10,
