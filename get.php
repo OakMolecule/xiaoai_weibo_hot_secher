@@ -1,5 +1,10 @@
 <?php
 require_once("include/db_info.inc.php");
+require_once("bootstrap.php");
+
+use voku\helper\HtmlDomParser;
+
+header('Content-type: application/json');
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
 } else {
@@ -7,8 +12,8 @@ if (isset($_GET['id'])) {
 }
 $url = "";
 foreach ($dbh->query("SELECT * FROM weibo_hot_searchs order by `created_at` desc limit 1") as $row) {
-    $url = "http://s.weibo.com" . json_decode($row['json'], true)[$id - 1]['href'];
-//    echo $url;
+    $url = "https://s.weibo.com" . json_decode($row['json'], true)[$id - 1]['href'];
+//    echo $url . "\n\n";
 //    echo json_decode($row['json'], true)[$id - 1]['href'];
     break;
 }
@@ -38,22 +43,17 @@ curl_close($curl);
 if ($err) {
     echo "cURL Error #:" . $err;
 } else {
-//    echo $response;
-    $pattern = "/(?<=STK.pageletM.view\().*?}(?=\))/";
-    preg_match_all($pattern, $response, $matches);
-//    print_r($matches);
-    for ($i = 0; $i < sizeof($matches[0]); $i++) {
-//        echo $matches[0][$i];
-//        print_r(json_decode($matches[0][$i]));
-        if (json_decode($matches[0][$i])->{'pid'} == "pl_weibo_direct") {
-            break;
-        }
+    $html = HtmlDomParser::str_get_html($response);
+    $last_div = '';
+    foreach ($html->find('div#pl_feedlist_index div') as $e) {
+        $last_div = $e->find('div.card')[0]->find('div.content')[0];
+        break;
     }
-    $json = json_decode($matches[0][$i]);
-    $html = $json->{'html'};
-    preg_match("/(?<=<div class=\"feed_content wbcon\">)[\s\S]*?(?=<\/div>)/", $html, $div_tags);
-    $div_tags = $div_tags[0];
-//    echo $div_tags;
+    $div_tags = $last_div->find('p.txt[node-type=feed_list_content_full]')[0];
+    if (empty($div_tags)) {
+        $div_tags = $last_div->find('p.txt[node-type=feed_list_content]')[0];
+    }
+
     preg_match("/(?<=nick-name=\")[\s\S]*?(?=\")/", $div_tags, $nick_name);
     preg_match("/<p.*?>[\s\S]*?<\/p>/", $div_tags, $p_tags);
     echo json_encode(array("nick_name" => $nick_name[0], "content" => preg_replace("/<.*?>|[\s]|#/", "", $p_tags[0])));

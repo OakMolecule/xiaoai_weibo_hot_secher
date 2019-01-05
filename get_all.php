@@ -1,15 +1,15 @@
 <?php
 require_once("include/db_info.inc.php");
 header('Content-type: application/json');
-foreach ($dbh->query("SELECT * FROM weibo_hot_searchs where `created_at` >= CURRENT_TIMESTAMP - INTERVAL 10 MINUTE") as $row) {
-    echo $row['json'];
-    return;
-}
+ foreach ($dbh->query("SELECT * FROM weibo_hot_searchs where `created_at` >= CURRENT_TIMESTAMP - INTERVAL 10 MINUTE") as $row) {
+     echo $row['json'];
+     return;
+ }
 $curl = curl_init();
 $data = array();
 
 curl_setopt_array($curl, array(
-    CURLOPT_URL => "http://s.weibo.com/top/summary",
+    CURLOPT_URL => "https://s.weibo.com/top/summary",
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_ENCODING => "",
     CURLOPT_MAXREDIRS => 10,
@@ -29,18 +29,27 @@ curl_close($curl);
 if ($err) {
     echo "cURL Error #:" . $err;
 } else {
-    require_once("include/db_info.inc.php");
-    $pattern = "/(?<=STK.pageletM.view\()[\s\S]*?}(?=\))/";
-    preg_match_all($pattern, $response, $matches);
-    for ($i = 0; $i < sizeof($matches[0]); $i++) {
-        if (json_decode($matches[0][$i])->{'pid'} == "pl_top_realtimehot") {
-            break;
-        }
-    }
+    // echo $response;
+    $data = [];
+    $response = str_replace("\n", "", $response);
+    $pattern_tbody = "/<tbody[^<>]*?>.*?<\\/tbody>/";
+    preg_match_all($pattern_tbody, $response, $matche_tbody);
+    $tbody = $matche_tbody[0][0];
 
-    $json = json_decode($matches[0][$i]);
-    $html = $json->{'html'};
-    preg_match_all("/<a.*?>[\s\S]*?<\/a>/", $html, $a_tags);
+//    $pattern_tr = "/<tr[^<>]*>.*?<\\/tr>/";
+//    preg_match_all($pattern_tr, $tbody, $matche_trs);
+//    $tr = $matche_trs[0];
+//    for ($i = 0; $i < 3; $i++) {        // 根据需求只取前3个
+//        echo $tr[$i] . "\n\n\n";
+//        $data[$i]["num"] = $i + 1;
+//    }
+//    print_r($data);
+//    for ($i = 0; $i < sizeof($matche_trs[0]); $i++) {
+//        echo $matche_trs[0][$i] . "\n\n\n";
+//    }
+
+
+    preg_match_all("/<a.*?>[\s\S]*?<\/a>/", $tbody, $a_tags);
     $a_tags = $a_tags[0];
     for ($i = 0, $j = 0; $j < 3 && $i < sizeof($a_tags); $i++) {
         if (preg_match("/(?<=>).+(?=<\/a)/", $a_tags[$i], $title)) {

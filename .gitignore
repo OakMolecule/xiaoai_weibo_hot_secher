@@ -1,1 +1,10 @@
+# php (composer)
+vendor
+composer.lock
+composer.phar
+
+### PhpStorm ###
+# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
+
+## Directory-based project format
 .idea/
